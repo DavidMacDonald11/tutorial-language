@@ -14,3 +14,6 @@ class UnaryExpression(Node):
 
         op = parser.take()
         return UnaryExpression(op, UnaryExpression.construct(parser))
+
+    def nodes(self) -> list:
+        return [self.op, self.right]

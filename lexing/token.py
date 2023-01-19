@@ -11,3 +11,6 @@ class Token:
 
     def of(self, *args: str) -> bool:
         return self.kind in args
+
+    def tree_repr(self, _):
+        return repr(self)

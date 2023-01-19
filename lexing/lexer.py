@@ -4,45 +4,61 @@ from util.error import LanguageError
 class LexerError(LanguageError):
     pass
 
-def make_tokens(line: str) -> list[Token]:
-    tokens = []
+class Lexer:
+    def __init__(self, line: str):
+        self.line = line
+        self.i = 0
 
-    while len(line) > 0:
-        char = line[0]
+    def __len__(self):
+        return len(self.line) - self.i
 
-        if char.isspace():
-            line = line[1:]
-            continue
+    def next(self) -> str:
+        return self.line[self.i] if self.i < len(self.line) else ""
 
-        if char in "()":
-            tokens += [Token(char, "Punctuator")]
-            line = line[1:]
-            continue
+    def take(self) -> str:
+        char = self.next()
+        self.i += 1 if self.i < len(self.line) else 0
+        return char
 
-        if char in "+-*/":
-            tokens += [Token(char, "Operator")]
-            line = line[1:]
-            continue
+    def make_tokens(self) -> list[Token]:
+        tokens = []
 
-        if char.isdigit():
-            line, token = make_number(line)
-            tokens += [token]
-            continue
+        while len(self) > 0:
+            tokens += [self.make_token()]
 
-        raise LexerError(f"Symbol '{char}' is unrecognized")
+        tokens += [Token("EOF", "Punctuator")]
+        return tokens
 
-    tokens += [Token("EOF", "Punctuator")]
-    return tokens
+    def make_token(self) -> Token:
+        while self.next().isspace():
+            self.take()
 
-def make_number(line: str) -> tuple[str, Token]:
-    string = ""
+        if self.next() in "()":
+            return Token(self.take(), "Punctuator")
 
-    while len(line) > 0 and (line[0].isdigit() or line[0] == "."):
-        string += line[0]
-        line = line[1:]
+        if self.next() in "+-*/%":
+            return self.make_operator()
 
-    if len(string.split(".")) > 2:
-        raise LexerError(f"A number can have, at most, 1 decimal place: '{string}'")
+        if self.next().isdigit() or self.next() == ".":
+            return self.make_number()
 
-    token = Token(string, "Number")
-    return line, token
+        raise LexerError(f"Symbol '{self.next()}' is unrecognized")
+
+    def make_operator(self) -> Token:
+        string = self.take()
+
+        if self.next() == "/":
+            string += self.take()
+
+        return Token(string, "Operator")
+
+    def make_number(self) -> Token:
+        string = ""
+
+        while len(self) > 0 and (self.next().isdigit() or self.next() == "."):
+            string += self.take()
+
+        if string.count(".") > 1:
+            raise LexerError(f"A number can have, at most, 1 decimal place: '{string}'")
+
+        return Token(string, "Number")

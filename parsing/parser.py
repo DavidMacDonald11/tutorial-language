@@ -7,6 +7,10 @@ class ParserError(LanguageError):
     pass
 
 class Parser:
+    @property
+    def expression(self):
+        return Expression
+
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.i = 0

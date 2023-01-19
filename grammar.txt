@@ -8,7 +8,7 @@ UnaryExpression:
 
 MultiplicativeExpression:
     UnaryExpression
-    MultiplicativeExpression (*, /) UnaryExpression
+    MultiplicativeExpression (*, /, %, //) UnaryExpression
 
 AdditiveExpression:
     MultiplicativeExpression

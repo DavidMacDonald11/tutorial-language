@@ -1,4 +1,4 @@
-from lexing.lexer import make_tokens, LanguageError
+from lexing.lexer import Lexer, LanguageError
 from parsing.parser import Parser
 
 def main():
@@ -11,11 +11,13 @@ def main():
             break
 
         try:
-            tokens = make_tokens(line)
+            lexer = Lexer(line)
+            tokens = lexer.make_tokens()
 
             parser = Parser(tokens)
             tree = parser.make_tree()
 
+            print(tokens)
             print(tree)
         except LanguageError as error:
             print(error.message)
