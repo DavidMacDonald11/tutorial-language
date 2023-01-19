@@ -1,0 +1,18 @@
+PrimaryExpression:
+    Number
+    ( Expression )
+
+UnaryExpression:
+    PrimaryExpression
+    (-, +) UnaryExpression
+
+MultiplicativeExpression:
+    UnaryExpression
+    MultiplicativeExpression (*, /) UnaryExpression
+
+AdditiveExpression:
+    MultiplicativeExpression
+    AdditiveExpression (+, -) MultiplicativeExpression
+
+Expression:
+    AdditiveExpression

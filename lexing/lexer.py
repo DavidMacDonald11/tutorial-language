@@ -1,26 +1,21 @@
-from token.token import Token
-
-
-class LanguageError(RuntimeError):
-    def __init__(self, message):
-        self.message = message
-
-
-class SymbolError(LanguageError):
-    pass
-
+from lexing.token import Token
+from util.error import LanguageError
 
 class LexerError(LanguageError):
     pass
 
-
-def make_tokens(line):
+def make_tokens(line: str) -> list[Token]:
     tokens = []
 
     while len(line) > 0:
         char = line[0]
 
         if char.isspace():
+            line = line[1:]
+            continue
+
+        if char in "()":
+            tokens += [Token(char, "Punctuator")]
             line = line[1:]
             continue
 
@@ -34,12 +29,12 @@ def make_tokens(line):
             tokens += [token]
             continue
 
-        raise SymbolError(f"Symbol '{char}' is unrecognized")
+        raise LexerError(f"Symbol '{char}' is unrecognized")
 
+    tokens += [Token("EOF", "Punctuator")]
     return tokens
 
-
-def make_number(line):
+def make_number(line: str) -> tuple[str, Token]:
     string = ""
 
     while len(line) > 0 and (line[0].isdigit() or line[0] == "."):
