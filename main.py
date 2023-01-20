@@ -17,10 +17,9 @@ def main():
             parser = Parser(tokens)
             tree = parser.make_tree()
 
-            print(tokens)
-            print(tree)
+            print(tree.interpret())
         except LanguageError as error:
-            print(error.message)
+            print(error)
 
 if __name__ == "__main__":
     main()

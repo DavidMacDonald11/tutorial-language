@@ -17,3 +17,11 @@ class UnaryExpression(Node):
 
     def nodes(self) -> list:
         return [self.op, self.right]
+
+    def interpret(self):
+        num = self.right.interpret()
+
+        if self.op.string == "-":
+            num *= -1
+
+        return num

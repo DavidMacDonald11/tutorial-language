@@ -22,8 +22,10 @@ class Node:
 
         return string
 
-
     def nodes(self) -> list:
+        pass
+
+    def interpret(self):
         pass
 
 class PrimaryNode(Node):

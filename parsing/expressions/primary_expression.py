@@ -13,4 +13,5 @@ class PrimaryExpression(PrimaryNode):
 
         return node
 
-
+    def interpret(self):
+        return (float if "." in self.token.string else int)(self.token.string)

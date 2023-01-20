@@ -36,4 +36,9 @@ class Parser:
         raise ParserError(f"Expecting {args}")
 
     def make_tree(self) -> Node:
-        return Expression.construct(self)
+        node = Expression.construct(self)
+
+        if not self.next().has("EOF"):
+            raise ParserError(f"Unexpected token {self.next()}")
+
+        return node
