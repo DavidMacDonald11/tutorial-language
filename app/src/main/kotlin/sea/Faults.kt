@@ -1,12 +1,15 @@
 package sea
 
+import sea.lexer.SourceLine
+
 class Faults {
     class CompilerFailure: Exception() {}
 
     public interface Component {
+        val lines: List<SourceLine>
+        val markedLines get() = lines.map{it.markedLine}.joinToString()
         fun treeString(prefix: String): String
         fun mark()
-        fun getMarkedLines(): String
     }
 
     var stage = 0
@@ -23,7 +26,7 @@ class Faults {
 
         string += warnings.joinToString("\n")
         string += errors.joinToString("\n")
-        string += if(failure == null) "" else "\n$failure\n"
+        string += failure?.let{"\n$it\n"}?: ""
 
         return string
     }
@@ -31,7 +34,7 @@ class Faults {
     private fun act(c: Component, message: String, severity: String): String {
         c.mark()
         val label = "${stageMap[stage]} $severity"
-        return "$label: $message\n${c.getMarkedLines()}"
+        return "$label: $message\n${c.markedLines}"
     }
 
     fun warn(c: Component, message: String) {

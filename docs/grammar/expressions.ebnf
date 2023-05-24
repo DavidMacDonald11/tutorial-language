@@ -1,0 +1,44 @@
+expr
+    | bitwiseOrExpr
+
+bitwiseOrExpr
+    | bitwiseXorExpr ["|" bitwiseOrExpr]
+
+bitwiseXorExpr:
+    | bitwiseAndExpr ["$" bitwiseXorExpr]
+
+bitwiseAndExpr
+    | shiftExpr ["&" bitwiseAndExpr]
+
+shiftExpr
+    | additiveExpr [("<<" | ">>") shiftExpr]
+
+additiveExpr
+    | multiplicativeExpr [("+" | "-") additiveExpr]
+
+multiplicativeExpr
+    | castExpr [("*" | "/" | "%") multiplicativeExpr]
+
+castExpr
+    | prefixExpr
+    | castExpr "as" type
+
+prefixExpr
+    | primaryExpr
+    | prefixOp prefixExpr
+
+prefixOp
+    | "+" | "-"
+    | "!"
+
+primaryExpr
+    | NUMBER
+    | CHARACTER
+    | primaryKeyword
+    | parenExpr
+
+primaryKeyword
+    | "true" | "false"
+
+parenExpr
+    | "(" expr ")"

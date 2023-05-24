@@ -10,7 +10,7 @@ fun main(args: Array<String>) = runBlocking {
     val jobs = ArrayList<Job>(filePaths.size)
 
     for(srcPath in filePaths) {
-        val job = launch { compileFile(srcPath, outDir, options) }
+        val job = launch{compileFile(srcPath, outDir, options)}
         jobs.add(job)
     }
 

@@ -25,7 +25,7 @@ data class SourceLine(val num: Int, val text: String) {
         return text.substring(position.start, position.end)
     }
 
-    fun getMarkedLine(): String {
+    val markedLine: String get() {
         var start = -1
         var end = -1
 
