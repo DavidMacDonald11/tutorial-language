@@ -2,30 +2,30 @@ expr
     | bitwiseOrExpr
 
 bitwiseOrExpr
-    | bitwiseXorExpr ["|" bitwiseOrExpr]
+    | [bitwiseOrExpr "|"] bitwiseXorExpr
 
 bitwiseXorExpr:
-    | bitwiseAndExpr ["$" bitwiseXorExpr]
+    | [bitwiseXorExpr "$"] bitwiseAndExpr
 
 bitwiseAndExpr
-    | shiftExpr ["&" bitwiseAndExpr]
+    | [bitwiseAndExpr "&"] shiftExpr
 
 shiftExpr
-    | additiveExpr [("<<" | ">>") shiftExpr]
+    | [shiftExpr ("<<" | ">>")] additiveExpr
 
 additiveExpr
-    | multiplicativeExpr [("+" | "-") additiveExpr]
+    | [additiveExpr ("+" | "-")] multiplicativeExpr
 
 multiplicativeExpr
-    | castExpr [("*" | "/" | "%") multiplicativeExpr]
+    | [multiplicativeExpr ("*" | "/" | "%")] castExpr
 
 castExpr
-    | prefixExpr
     | castExpr "as" type
+    | prefixExpr
 
 prefixExpr
-    | primaryExpr
     | prefixOp prefixExpr
+    | primaryExpr
 
 prefixOp
     | "+" | "-"
