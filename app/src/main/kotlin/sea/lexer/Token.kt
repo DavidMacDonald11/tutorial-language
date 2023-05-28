@@ -18,7 +18,7 @@ data class Token(val line: SourceLine, val type: Type): Faults.Component {
     fun of(c: Collection<Type>) = of(*c.toTypedArray())
     fun has(vararg strings: String) = string in strings
     fun has(c: Collection<String>) = has(*c.toTypedArray())
-    fun isInt() = of(Type.NUM) && "." !in string
+    val isInt get() = of(Type.NUM) && "." !in string
 
     override fun toString() =
         if(string == "") "${type.label}'EOF'"

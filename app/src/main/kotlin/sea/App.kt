@@ -1,6 +1,7 @@
 package sea
 
 import kotlinx.coroutines.*
+import sea.lexer.*
 
 fun main(args: Array<String>) = runBlocking {
     val options = args[0]
@@ -21,15 +22,16 @@ suspend fun compileFile(srcPath: String, outDir: String, options: String) {
     val dFile = DebugFile(srcPath, outDir, options)
     val faults = Faults()
 
-    if(runLexer(faults, dFile)) return
+    val lexer = Lexer(faults, srcPath)
+    if(runLexer(lexer, dFile)) return
 
     // Run Stage 2 (parser)
 }
 
-fun runLexer(faults: Faults, dFile: DebugFile) = runStage(faults) {
-    println("Building NAME OF FILE HERE...")
-    // makeTokens
-    dFile.write("Tokens:\n\t")
+fun runLexer(lexer: Lexer, dFile: DebugFile) = runStage(lexer.faults) {
+    println("Building ${lexer.file.path}...")
+    lexer.makeTokens()
+    dFile.write("Tokens:\n\t$lexer")
 }
 
 fun runStage(faults: Faults, func: () -> Unit): Boolean {
