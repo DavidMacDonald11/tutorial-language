@@ -7,6 +7,7 @@ import sea.grammar.Token
 data class Lexer(val faults: Faults, val filePath: String) {
     val file = SourceFile(filePath)
     val tokens = mutableListOf<Token>()
+    var atStringStart = false
 
     override fun toString() = tokens.joinToString(", ", "[", "]")
 
@@ -14,11 +15,26 @@ data class Lexer(val faults: Faults, val filePath: String) {
         do makeToken() while(!file.atEnd)
     }
 
+    private fun newTempToken(
+        type: Token.Type = Token.Type.NONE,
+        line: SourceLine = file.line,
+        isStringEnd: Boolean = false
+    ): Token {
+        val token = Token(type, line)
+
+        token.isStringEnd = isStringEnd
+        token.isStringStart = atStringStart
+        if(atStringStart) atStringStart = false
+
+        return token
+    }
+
     private fun newToken(
         type: Token.Type = Token.Type.NONE,
-        line: SourceLine = file.line
+        line: SourceLine = file.line,
+        isStringEnd: Boolean = false
     ): Token {
-        val token = Token(line, type)
+        val token = newTempToken(type, line, isStringEnd)
         tokens.add(token)
         return token
     }
@@ -32,6 +48,10 @@ data class Lexer(val faults: Faults, val filePath: String) {
                 newToken(Token.Type.PUNC)
             }
             in Token.NUM_START_SYMS -> makeNumber()
+            in Token.PUNC_SYMS -> makePunctuator()
+            in Token.ID_START_SYMS -> makeIdentifier()
+            '\'' -> makeCharacter()
+            '"' -> makeString()
             else -> {
                 file.take(1)
                 val token = newToken()
@@ -98,7 +118,147 @@ data class Lexer(val faults: Faults, val filePath: String) {
         token.string = if(token.isInt) "${result.toLong()}" else "$result"
     }
 
-    private fun makePunctuator() {}
+    private fun makePunctuator() {
+        if(file.nextString(3) in Token.PUNCS) file.take(3)
+        else if(file.nextString(2) in Token.PUNCS) file.take(2)
+        else file.take(1)
+
+        val token = newToken(Token.Type.PUNC)
+        if(token.string !in Token.PUNCS) faults.error(token,
+            "Unrecognized punctuator")
+    }
+
+    private fun makeIdentifier() {
+        val string = file.take(these = Token.ID_SYMS)
+        val type = if(string in Token.KEYS) Token.Type.KEY
+            else Token.Type.ID
+
+        newToken(type)
+    }
+
+    private fun makeCharacter() {
+        val pattern = """'(\\[btnr'"\\$]|\\u[a-fA-F0-9]{4}|[^\\'])'""".toRegex()
+        file.take(1)
+
+        if(file.next == '\'') {
+            file.take(1)
+            faults.error(newToken(Token.Type.CHAR), "Empty character literal")
+            return
+        }
+
+        if(file.next == '\\') {
+            file.take(2)
+            file.take(until = "'")
+        } else file.take(1)
+
+        if(file.take(1) != "'") throw faults.fail(newToken(),
+            "Unterminated character literal")
+
+        val token = newToken(Token.Type.CHAR)
+
+        if(!token.string.matches(pattern)) faults.error(token,
+            "Invalid character literal")
+    }
+
+    private fun makeString() {
+        atStringStart = true
+
+        if(file.nextString(3) == "\"\"\"") return makeMultilineString()
+        file.take(1)
+
+        while(file.next != '\n') {
+            file.take(until = "\\$\"\n")
+
+            when(file.next) {
+                '\\' -> makeStringEscapeSequence()
+                '$' -> makeStringTemplate()
+                '\"' -> {
+                    file.take(1)
+                    newToken(Token.Type.STR, isStringEnd = true)
+                    return
+                }
+                '\n' -> break
+            }
+        }
+
+        throw faults.fail(newToken(), "Unterminated string literal")
+    }
+
+    private fun makeMultilineString() {
+        file.take(3)
+
+        while(!file.atEnd) {
+            if(file.nextString(3) == "\"\"\"") {
+                file.take(3)
+                newToken(Token.Type.STR, isStringEnd = true)
+                return
+            }
+
+            file.take(until = "$\n")
+
+            if(file.next == '\n') {
+                val line = file.line
+                file.take(1)
+                newToken(Token.Type.STR, line)
+            } else if(file.next == '$') makeStringTemplate()
+        }
+
+        throw faults.fail(newToken(), "Unterminated multiline string literal")
+    }
+
+    private fun makeStringEscapeSequence() {
+        val pattern = """\\[btnr'"\\$]|\\u[a-fA-F0-9]{4}""".toRegex()
+
+        var escape = file.take(2)
+        if(escape == "\\u") escape += file.take(4)
+
+        if(!escape.matches(pattern)) faults.error(newToken(),
+            "Invalid escape sequence")
+    }
+
+    private fun makeStringTemplate() {
+        when(file.nextString(2)[1]) {
+            in Token.ID_START_SYMS -> makeSmallStringTemplate()
+            '{' -> makeLargeStringTemplate()
+            else -> file.take(1)
+        }
+    }
+
+    private fun makeSmallStringTemplate() {
+        newToken(Token.Type.STR)
+
+        file.take(1)
+        file.line.ignorePosition()
+
+        makeIdentifier()
+        return
+    }
+
+    private fun makeLargeStringTemplate() {
+        newToken(Token.Type.STR)
+
+        file.take(2)
+        file.line.ignorePosition()
+
+        if(file.next == '}') {
+            file.take(1)
+            faults.warn(newTempToken(), "Empty string template")
+            return
+        }
+
+        while(true) {
+            ignoreSpacesAndComments()
+            if(file.next in listOf('}', '\u0000')) break
+            makeToken()
+        }
+
+        val nextIsNothing = (file.next == '\u0000')
+        file.take(1)
+        file.line.ignorePosition()
+
+        if(nextIsNothing) throw faults.fail(newToken(),
+            "Unterminated string template")
+    }
 
     private fun ignoreSpacesAndComments() {
         while(ignoreSpace() || ignoreComment()) {}

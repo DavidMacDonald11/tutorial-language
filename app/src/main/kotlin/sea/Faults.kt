@@ -24,9 +24,12 @@ class Faults {
     override fun toString(): String {
         var string = ""
 
-        string += warnings.joinToString("\n")
-        string += errors.joinToString("\n")
-        string += failure?.let{"\n$it\n"}?: ""
+        val warnNewline = if(warnings.size > 0) "\n" else ""
+        val errorNewline = if(errors.size > 0) "\n" else ""
+
+        string += warnings.joinToString("\n") + warnNewline
+        string += errors.joinToString("\n") + errorNewline
+        string += failure?.plus("\n")?: ""
 
         return string
     }

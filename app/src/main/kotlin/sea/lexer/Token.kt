@@ -6,19 +6,21 @@ import sea.lexer.SourceLine
 private val UPPERCASE_LETTERS = ('A'..'Z').joinToString("")
 private val LOWERCASE_LETTERS = ('a'..'z').joinToString("")
 
-data class Token(val line: SourceLine, val type: Type): Faults.Component {
+data class Token(val type: Type, val line: SourceLine): Faults.Component {
     enum class Type(val label: Char) {
         PUNC('P'), ID('I'), KEY('K'), NUM('N'), CHAR('C'), STR('S'), NONE('?')
     }
 
     val linePosition = line.newPosition()
     var string = line.newString(linePosition)
+    val isInt get() = of(Type.NUM) && "." !in string
+    var isStringStart = false
+    var isStringEnd = false
 
     fun of(vararg types: Type) = type in types
     fun of(c: Collection<Type>) = of(*c.toTypedArray())
     fun has(vararg strings: String) = string in strings
     fun has(c: Collection<String>) = has(*c.toTypedArray())
-    val isInt get() = of(Type.NUM) && "." !in string
 
     override fun toString() =
         if(string == "") "${type.label}'EOF'"

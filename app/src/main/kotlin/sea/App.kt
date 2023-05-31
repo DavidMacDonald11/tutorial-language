@@ -26,6 +26,8 @@ suspend fun compileFile(srcPath: String, outDir: String, options: String) {
     if(runLexer(lexer, dFile)) return
 
     // Run Stage 2 (parser)
+
+    if(faults.warnings.size > 0) println("$faults")
 }
 
 fun runLexer(lexer: Lexer, dFile: DebugFile) = runStage(lexer.faults) {
