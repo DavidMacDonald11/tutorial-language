@@ -17,7 +17,10 @@ additiveExpr
     | [additiveExpr ("+" | "-")] multiplicativeExpr
 
 multiplicativeExpr
-    | [multiplicativeExpr ("*" | "/" | "%")] castExpr
+    | [multiplicativeExpr ("*" | "/" | "%")] exponentialExpr
+
+exponentialExpr
+    | castExpr ["^" exponentialExpr]
 
 castExpr
     | castExpr "as" type

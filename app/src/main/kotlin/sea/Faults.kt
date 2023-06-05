@@ -1,6 +1,6 @@
 package sea
 
-import sea.lexer.SourceLine
+import sea.files.SourceLine
 
 class Faults {
     class CompilerFailure: Exception() {}
@@ -12,14 +12,10 @@ class Faults {
         fun mark()
     }
 
-    var stage = 0
+    var stageVerb = ""
     val warnings = mutableListOf<String>()
     val errors = mutableListOf<String>()
     var failure: String? = null
-
-    companion object {
-        val stageMap = arrayOf("Lexing", "Parsing", "Transpiling")
-    }
 
     override fun toString(): String {
         var string = ""
@@ -36,7 +32,7 @@ class Faults {
 
     private fun act(c: Component, message: String, severity: String): String {
         c.mark()
-        val label = "${stageMap[stage]} $severity"
+        val label = "$stageVerb $severity"
         return "$label: $message\n${c.markedLines}"
     }
 
@@ -54,7 +50,6 @@ class Faults {
     }
 
     fun finishStage() {
-        stage += 1
         if(errors.size == 0) return
         throw CompilerFailure()
     }

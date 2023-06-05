@@ -1,0 +1,14 @@
+fileStat
+    | endedStat*
+
+endedStat
+    | stat lineEnd
+
+lineEnd
+    | ";" | "\n" | EOF
+
+stat
+    | basicStat
+
+basicStat
+    | expr

@@ -1,4 +1,4 @@
-package sea.lexer
+package sea.files
 
 import java.io.File
 import java.io.BufferedReader

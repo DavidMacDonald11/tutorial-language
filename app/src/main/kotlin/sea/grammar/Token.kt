@@ -1,7 +1,7 @@
 package sea.grammar
 
 import sea.Faults
-import sea.lexer.SourceLine
+import sea.files.SourceLine
 
 private val UPPERCASE_LETTERS = ('A'..'Z').joinToString("")
 private val LOWERCASE_LETTERS = ('a'..'z').joinToString("")
@@ -33,7 +33,7 @@ data class Token(val type: Type, val line: SourceLine): Faults.Component {
     companion object {
         val PREFIX_OPS = setOf("+", "-", "!")
         val PUNCS = PREFIX_OPS + setOf(
-            "*", "/", "%", "+", "-", "<<", ">>", "&", "$", "|",
+            "^", "*", "/", "%", "+", "-", "<<", ">>", "&", "$", "|",
             ";")
         val PUNC_SYMS = PUNCS.flatMap{it.asIterable()}.toSet()
 
@@ -42,7 +42,7 @@ data class Token(val type: Type, val line: SourceLine): Faults.Component {
 
         val PRIMARY_KEYS  = setOf("true", "false")
         val KEYS = PRIMARY_KEYS + setOf(
-            "as")
+            "as", "print")
 
         val EOF = ""
         val LINE_ENDS = setOf(";", "\n", EOF)

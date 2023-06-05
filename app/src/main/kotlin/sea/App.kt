@@ -1,7 +1,8 @@
 package sea
 
 import kotlinx.coroutines.*
-import sea.lexer.*
+import sea.files.DebugFile
+import sea.stages.*
 
 fun main(args: Array<String>) = runBlocking {
     val options = args[0]
@@ -25,7 +26,8 @@ suspend fun compileFile(srcPath: String, outDir: String, options: String) {
     val lexer = Lexer(faults, srcPath)
     if(runLexer(lexer, dFile)) return
 
-    // Run Stage 2 (parser)
+    val parser = Parser(faults, lexer.tokens)
+    if(runParser(parser, dFile)) return
 
     if(faults.warnings.size > 0) println("$faults")
 }
@@ -34,6 +36,11 @@ fun runLexer(lexer: Lexer, dFile: DebugFile) = runStage(lexer.faults) {
     println("Building ${lexer.file.path}...")
     lexer.makeTokens()
     dFile.write("Tokens:\n\t$lexer")
+}
+
+fun runParser(parser: Parser, dFile: DebugFile) = runStage(parser.faults) {
+    parser.makeTree()
+    dFile.write("AST:\n    $parser")
 }
 
 fun runStage(faults: Faults, func: () -> Unit): Boolean {

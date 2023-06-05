@@ -1,10 +1,14 @@
-package sea.lexer
+package sea.stages
 
 import kotlin.math.pow
 import sea.Faults
+import sea.files.SourceFile
+import sea.files.SourceLine
 import sea.grammar.Token
 
 data class Lexer(val faults: Faults, val filePath: String) {
+    init { faults.stageVerb = "Lexing" }
+
     val file = SourceFile(filePath)
     val tokens = mutableListOf<Token>()
     var atStringStart = false

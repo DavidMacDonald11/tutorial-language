@@ -1,4 +1,4 @@
-package sea.lexer
+package sea.files
 
 data class SourceLine(val num: Int, val text: String) {
     data class Position(var start: Int = 0, var end: Int = 0) {}
