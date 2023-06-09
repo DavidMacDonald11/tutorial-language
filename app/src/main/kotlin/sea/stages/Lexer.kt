@@ -229,7 +229,7 @@ data class Lexer(val faults: Faults, val filePath: String) {
     }
 
     private fun makeSmallStringTemplate() {
-        newToken(Token.Type.STR)
+        if(file.line.takenString != "") newToken(Token.Type.STR)
 
         file.take(1)
         file.line.ignorePosition()
@@ -239,7 +239,7 @@ data class Lexer(val faults: Faults, val filePath: String) {
     }
 
     private fun makeLargeStringTemplate() {
-        newToken(Token.Type.STR)
+        if(file.line.takenString != "") newToken(Token.Type.STR)
 
         file.take(2)
         file.line.ignorePosition()

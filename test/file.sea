@@ -1,1 +1,17 @@
 5 + 6i
+
+"""
+this is a string
+second line
+${2^3^4 + 9}
+"""
+
+"x = ${
+    43 % 2i
+} in terms of i"
+
+(
+    '\n'
+)
+
+true - false

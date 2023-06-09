@@ -34,7 +34,7 @@ data class Token(val type: Type, val line: SourceLine): Faults.Component {
         val PREFIX_OPS = setOf("+", "-", "!")
         val PUNCS = PREFIX_OPS + setOf(
             "^", "*", "/", "%", "+", "-", "<<", ">>", "&", "$", "|",
-            ";")
+            ";", "(", ")")
         val PUNC_SYMS = PUNCS.flatMap{it.asIterable()}.toSet()
 
         val ID_START_SYMS = "_" + UPPERCASE_LETTERS + LOWERCASE_LETTERS

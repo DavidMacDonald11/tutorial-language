@@ -20,11 +20,8 @@ class Faults {
     override fun toString(): String {
         var string = ""
 
-        val warnNewline = if(warnings.size > 0) "\n" else ""
-        val errorNewline = if(errors.size > 0) "\n" else ""
-
-        string += warnings.joinToString("\n") + warnNewline
-        string += errors.joinToString("\n") + errorNewline
+        if(warnings.size > 0) string += warnings.joinToString("\n") + "\n"
+        if(errors.size > 0) string += errors.joinToString("\n") + "\n"
         string += failure?.plus("\n")?: ""
 
         return string

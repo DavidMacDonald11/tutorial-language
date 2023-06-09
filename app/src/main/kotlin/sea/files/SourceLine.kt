@@ -9,6 +9,7 @@ data class SourceLine(val num: Int, val text: String) {
     val marks = mutableListOf<Position>()
     val atEnd get() = (unreadText == "")
     val nextChar get() = if(!atEnd) unreadText[0] else '\u0000'
+    val takenString get() = newString(position)
 
     fun nextString(n: Int) = unreadText.take(n)
     fun ignorePosition() { position.start = position.end }
