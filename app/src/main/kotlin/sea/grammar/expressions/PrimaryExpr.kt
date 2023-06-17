@@ -57,6 +57,7 @@ data class StrLiteral(val components: List<Faults.Component>): Node() {
             if(start.isStringEnd) return StrLiteral(listOf(start))
 
             val parts = mutableListOf<Faults.Component>(start)
+            parser.skipNewline()
 
             while(parser.next.isStringStart || !parser.next.isStringEnd) {
                 val nextIsString = parser.next.of(Token.Type.STR)
@@ -64,7 +65,6 @@ data class StrLiteral(val components: List<Faults.Component>): Node() {
 
                 if(nextContinues) parts += parser.take()
                 else {
-                    parser.skipNewline()
                     parts += Expr.construct(parser)
                     parser.skipNewline()
                 }
