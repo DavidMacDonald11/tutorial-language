@@ -29,6 +29,9 @@ suspend fun compileFile(srcPath: String, outDir: String, options: String) {
     val parser = Parser(faults, lexer.tokens)
     if(runParser(parser, dFile)) return
 
+    val verifier = Verifier(faults, parser.tree)
+    if(runVerifier(verifier, dFile)) return
+
     if(faults.warnings.size > 0) println("$faults")
 }
 
@@ -41,6 +44,13 @@ fun runLexer(lexer: Lexer, dFile: DebugFile) = runStage(lexer.faults) {
 fun runParser(parser: Parser, dFile: DebugFile) = runStage(parser.faults) {
     parser.makeTree()
     dFile.write("AST:\n    $parser")
+}
+
+fun runVerifier(verifier: Verifier, dFile: DebugFile)
+    = runStage(verifier.faults)
+{
+    verifier.verifyTree()
+    dFile.write("Verified")
 }
 
 fun runStage(faults: Faults, func: () -> Unit): Boolean {

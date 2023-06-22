@@ -10,9 +10,14 @@ typealias Parts = List<Faults.Component?>
 
 abstract class Node: Faults.Component {
     abstract val parts: Parts
+    lateinit var exprType: ExprType
 
     interface CompanionObject {
         fun construct(parser: Parser): Node?
+    }
+
+    open fun verify(verifier: Verifier) {
+        exprType = ExprType(BasicType.Unit)
     }
 
     override val lines: List<SourceLine> get() {
@@ -39,6 +44,16 @@ abstract class Node: Faults.Component {
 
     override fun mark() = parts.forEach{ it?.mark() }
     override fun toString() = treeString("    ")
+
+    fun verifyNode(verifier: Verifier) {
+        verifier.nodes.addLast(this)
+
+        val nodes = parts.mapNotNull{it as? Node}
+        nodes.forEach{ it.verifyNode(verifier) }
+        verify(verifier)
+
+        verifier.nodes.removeLast()
+    }
 }
 
 
