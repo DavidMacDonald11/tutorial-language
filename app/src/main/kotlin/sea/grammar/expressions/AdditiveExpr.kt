@@ -10,4 +10,8 @@ class AdditiveExpr(left: Node, op: Token, right: Node)
         override val hasList = listOf("+", "-")
         override val makeChild = MultiplicativeExpr.Companion::construct
     }
+
+    override fun verify(verifier: Verifier) {
+        exprType = verifier.arithemticOperateOn(left.exprType, right.exprType)
+    }
 }

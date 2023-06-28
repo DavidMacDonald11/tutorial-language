@@ -50,7 +50,7 @@ fun runVerifier(verifier: Verifier, dFile: DebugFile)
     = runStage(verifier.faults)
 {
     verifier.verifyTree()
-    dFile.write("Verified")
+    dFile.write("Verified AST:\n    $verifier")
 }
 
 fun runStage(faults: Faults, func: () -> Unit): Boolean {

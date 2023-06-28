@@ -17,7 +17,7 @@ abstract class Node: Faults.Component {
     }
 
     open fun verify(verifier: Verifier) {
-        exprType = ExprType(BasicType.Unit)
+        exprType = ExprType(ExprType.Base.Unit)
     }
 
     override val lines: List<SourceLine> get() {
@@ -26,9 +26,16 @@ abstract class Node: Faults.Component {
         return lines.toList().sortedBy{it.num}
     }
 
-    override fun treeString(prefix: String): String {
+    protected val nameAndType get(): String {
         var string = "${this::class.simpleName}"
+        if(::exprType.isInitialized) string += ": ${exprType}"
+        return string
+    }
+
+
+    override fun treeString(prefix: String): String {
         val parts = parts.filterNotNull()
+        var string = nameAndType
 
         for((i, part) in parts.withIndex()) {
             val atEnd = (i == parts.size - 1)
@@ -60,7 +67,7 @@ abstract class Node: Faults.Component {
 abstract class PrimaryNode(var token: Token): Node() {
     override val parts: Parts = listOf(token)
     override fun treeString(prefix: String) =
-        "${this::class.simpleName} ── $token"
+        "$nameAndType ── $token"
 }
 
 

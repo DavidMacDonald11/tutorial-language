@@ -19,4 +19,8 @@ data class ExponentialExpr(val left: Node, val op: Token, val right: Node)
             return ExponentialExpr(node, op, right)
         }
     }
+
+    override fun verify(verifier: Verifier) {
+        exprType = verifier.arithemticOperateOn(left.exprType, right.exprType)
+    }
 }

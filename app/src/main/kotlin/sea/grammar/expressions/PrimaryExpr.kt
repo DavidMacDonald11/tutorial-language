@@ -28,7 +28,7 @@ class NumLiteral(token: Token, val imag: Token?): PrimaryNode(token) {
     override val parts: Parts = listOf(token, imag)
 
     override fun treeString(prefix: String) =
-        "${this::class.simpleName} ── $token${imag?.let{" $it"}?: ""}"
+        "$nameAndType ── $token${imag?.let{" $it"}?: ""}"
 
     companion object: Node.CompanionObject {
         override fun construct(parser: Parser): Node {
@@ -37,6 +37,14 @@ class NumLiteral(token: Token, val imag: Token?): PrimaryNode(token) {
             return NumLiteral(num, imag)
         }
     }
+
+    override fun verify(verifier: Verifier) {
+        val base = if(imag != null) ExprType.Base.Cplex64
+            else if(token.isInt) ExprType.Base.Int32
+            else ExprType.Base.Real64
+
+        exprType = ExprType(base)
+    }
 }
 
 
@@ -44,6 +52,10 @@ class CharLiteral(token: Token): PrimaryNode(token) {
     companion object: Node.CompanionObject {
         override fun construct(parser: Parser) =
             CharLiteral(parser.expectingOf(Token.Type.CHAR))
+    }
+
+    override fun verify(verifier: Verifier) {
+        exprType = ExprType(ExprType.Base.Char)
     }
 }
 
@@ -74,6 +86,10 @@ data class StrLiteral(val components: List<Faults.Component>): Node() {
             return StrLiteral(parts)
         }
     }
+
+    override fun verify(verifier: Verifier) {
+        exprType = ExprType(ExprType.Base.Str)
+    }
 }
 
 
@@ -82,6 +98,10 @@ class Identifier(token: Token): PrimaryNode(token) {
         override fun construct(parser: Parser) =
             Identifier(parser.expectingOf(Token.Type.ID))
     }
+
+    override fun verify(verifier: Verifier) {
+        exprType = ExprType(ExprType.Base.Any)
+    }
 }
 
 
@@ -89,6 +109,12 @@ class PrimaryKey(token: Token): PrimaryNode(token) {
     companion object: Node.CompanionObject {
         override fun construct(parser: Parser) =
             PrimaryKey(parser.expectingHas(Token.PRIMARY_KEYS))
+    }
+
+    override fun verify(verifier: Verifier) {
+        val isNone = token.has("none")
+        val base = if(isNone) ExprType.Base.Any else ExprType.Base.Bool
+        exprType = ExprType(base, optional = isNone)
     }
 }
 
@@ -106,5 +132,9 @@ data class ParenExpr(val expr: Node): Node() {
 
             return ParenExpr(expr)
         }
+    }
+
+    override fun verify(verifier: Verifier) {
+        exprType = expr.exprType
     }
 }
